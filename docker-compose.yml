@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  drone-server:
+    image: drone/drone:2
+    ports:
+      - "80:80"
+    volumes:
+      - ./drone-data:/data
+    restart: always
+    environment:
+      - DRONE_GITHUB_CLIENT_ID=id в app github
+      - DRONE_GITHUB_CLIENT_SECRET=secret id в app github
+      - DRONE_RPC_SECRET=$openssl rand 16-base64
+      - DRONE_SERVER_HOST=ip/domen
+      - DRONE_SERVER_PROTO=http
+      - DRONE_USER_CREATE=username:$USER,admin:true
+      - DRONE_OPEN=true
+      - DRONE_DOCKER_ENABLED=true
+  drone-agent:
+    image: drone/drone-runner-docker:1
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone-server:80
+      - DRONE_RPC_SECRET=$openssl rand 16-base64
+      - DRONE_RUNNER_CAPACITY=2
+ 
